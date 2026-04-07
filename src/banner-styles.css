@@ -1,0 +1,141 @@
+/* DB OOH Campaign Banner v3 — Static anchor + rotating phrases
+   D&B Brand: Blue #17179A, Orange #FE7000, White #FCFCFC
+   Secondary: Aqua #00CBFF, Pink #FF00B2, Red #FF0000, Yellow #FFBA00 */
+
+#db-ooh-banner {
+  width: 100%;
+  background-color: #17179A;
+  position: relative;
+  overflow: hidden;
+  padding: 48px 48px 40px;
+  box-sizing: border-box;
+  font-family: 'Outfit', system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Ambient glow blobs — secondary palette */
+#db-ooh-banner .db-ooh-glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+#db-ooh-banner .db-ooh-glow--1 { width: 300px; height: 300px; background: #00CBFF; top: -100px; right: -50px; }
+#db-ooh-banner .db-ooh-glow--2 { width: 250px; height: 250px; background: #FF00B2; bottom: -80px; left: -40px; }
+#db-ooh-banner .db-ooh-glow--3 { width: 200px; height: 200px; background: #FFBA00; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+#db-ooh-banner .db-ooh-inner {
+  max-width: 1400px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+/* Rotating phrases container */
+#db-ooh-banner .db-ooh-rotating {
+  position: relative;
+  min-height: 75px;
+}
+
+#db-ooh-banner .db-ooh-phrase {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  opacity: 0;
+  visibility: hidden;
+  color: #FCFCFC;
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(26px, 5vw, 64px);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+}
+
+#db-ooh-banner .db-ooh-phrase--active {
+  position: relative;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* SplitText word wrappers */
+#db-ooh-banner .db-ooh-phrase div {
+  display: inline-block;
+  overflow: visible;
+}
+
+/* Static anchor line — always visible */
+#db-ooh-banner .db-ooh-static {
+  color: #FE7000;
+  font-family: 'Outfit', system-ui, sans-serif;
+  font-weight: 800;
+  font-size: clamp(26px, 5vw, 64px);
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  line-height: 1.05;
+  text-shadow: 0 0 10px rgba(254, 112, 0, 0.15);
+  margin-top: 4px;
+}
+
+/* Accent line sweep */
+#db-ooh-banner .db-ooh-accent-line {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 3px;
+  z-index: 2;
+  background: linear-gradient(90deg, #00CBFF, #FF00B2, #FE7000, #FFBA00);
+}
+
+/* CSS fallback */
+#db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase {
+  animation: db-ooh-cycle 31.5s infinite;
+  opacity: 0;
+  visibility: hidden;
+  position: absolute;
+}
+#db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(1) { animation-delay: 0s; }
+#db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(2) { animation-delay: 4.5s; }
+#db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(3) { animation-delay: 9s; }
+#db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(4) { animation-delay: 13.5s; }
+#db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(5) { animation-delay: 18s; }
+#db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(6) { animation-delay: 22.5s; }
+#db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(7) { animation-delay: 27s; }
+#db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase--active { position: relative; }
+
+@keyframes db-ooh-cycle {
+  0%, 2% { opacity: 0; visibility: hidden; }
+  3%, 12% { opacity: 1; visibility: visible; position: relative; }
+  13%, 100% { opacity: 0; visibility: hidden; position: absolute; }
+}
+
+/* Responsive */
+@media (max-width: 991px) {
+  #db-ooh-banner { padding: 40px 32px 32px; }
+  #db-ooh-banner .db-ooh-rotating { min-height: 65px; }
+  #db-ooh-banner .db-ooh-glow--1 { width: 200px; height: 200px; }
+  #db-ooh-banner .db-ooh-glow--2 { width: 180px; height: 180px; }
+  #db-ooh-banner .db-ooh-glow--3 { width: 150px; height: 150px; }
+}
+
+@media (max-width: 767px) {
+  #db-ooh-banner { padding: 32px 24px 28px; }
+  #db-ooh-banner .db-ooh-rotating { min-height: 55px; }
+  #db-ooh-banner .db-ooh-glow { filter: blur(60px); }
+}
+
+@media (max-width: 600px) {
+  #db-ooh-banner { padding: 28px 20px 24px; }
+  #db-ooh-banner .db-ooh-rotating { min-height: 50px; }
+}
+
+@media (max-width: 380px) {
+  #db-ooh-banner { padding: 24px 16px 20px; }
+  #db-ooh-banner .db-ooh-rotating { min-height: 40px; }
+}

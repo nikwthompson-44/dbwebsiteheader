@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DB OOH Banner — Preview</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Outfit', system-ui, sans-serif; background: #0a0a0a; }
+    .mock-nav {
+      background: #1a1c20; padding: 16px 40px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .mock-nav-brand { color: #FE7000; font-size: 20px; font-weight: 700; }
+    .mock-nav-links { display: flex; gap: 24px; }
+    .mock-nav-links span { color: #FCFCFC; font-size: 14px; opacity: 0.7; }
+    .mock-hero {
+      background: linear-gradient(135deg, #1a1c20 0%, #2a2d35 100%);
+      height: 60vh; display: flex; align-items: center; justify-content: center;
+      flex-direction: column; gap: 12px;
+    }
+    .mock-hero-label { color: #FE7000; font-size: 14px; text-transform: uppercase; letter-spacing: 0.1em; }
+    .mock-hero-heading { color: #FCFCFC; font-size: 48px; font-weight: 700; }
+    .mock-hero-sub { color: rgba(252,252,252,0.5); font-size: 14px; }
+    @media (max-width: 767px) { .mock-nav-links { display: none; } .mock-hero-heading { font-size: 28px; } }
+  </style>
+</head>
+<body>
+
+  <nav class="mock-nav">
+    <div class="mock-nav-brand">Dave & Buster's</div>
+    <div class="mock-nav-links">
+      <span>Eat & Drink</span><span>Play</span><span>Watch Sports</span><span>Functions</span><span>Book Now</span>
+    </div>
+  </nav>
+
+  <!-- === OOH CAMPAIGN BANNER === -->
+
+<style>
+  #db-ooh-banner {
+    width: 100%;
+    background-color: #17179A;
+    position: relative;
+    overflow: hidden;
+    padding: 48px 48px 40px;
+    box-sizing: border-box;
+    font-family: 'Outfit', system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  #db-ooh-banner .db-ooh-glow {
+    position: absolute; border-radius: 50%; filter: blur(80px);
+    opacity: 0; pointer-events: none; z-index: 0;
+  }
+  #db-ooh-banner .db-ooh-glow--1 { width: 300px; height: 300px; background: #00CBFF; top: -100px; right: -50px; }
+  #db-ooh-banner .db-ooh-glow--2 { width: 250px; height: 250px; background: #FF00B2; bottom: -80px; left: -40px; }
+  #db-ooh-banner .db-ooh-glow--3 { width: 200px; height: 200px; background: #FFBA00; top: 50%; left: 50%; transform: translate(-50%, -50%); }
+
+  #db-ooh-banner .db-ooh-inner {
+    max-width: 1400px; margin: 0 auto; position: relative; z-index: 1; text-align: center;
+  }
+
+  #db-ooh-banner .db-ooh-rotating { position: relative; min-height: 75px; }
+
+  #db-ooh-banner .db-ooh-phrase {
+    position: absolute; top: 0; left: 0; width: 100%;
+    color: #FCFCFC; font-family: 'Outfit', system-ui, sans-serif;
+    font-weight: 800; font-size: clamp(26px, 5vw, 64px);
+    text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.15; opacity: 0;
+  }
+
+  #db-ooh-banner .db-ooh-phrase--active { position: relative; opacity: 1; }
+
+  #db-ooh-banner .db-ooh-word-mask {
+    display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 4px;
+  }
+
+  #db-ooh-banner .db-ooh-word { display: inline-block; will-change: transform; }
+
+  #db-ooh-banner .db-ooh-orange-wrap {
+    position: relative; overflow: hidden; margin-top: 4px;
+  }
+
+  #db-ooh-banner .db-ooh-orange {
+    color: #FE7000; font-family: 'Outfit', system-ui, sans-serif;
+    font-weight: 800; font-size: clamp(26px, 5vw, 64px);
+    text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.15;
+  }
+
+  #db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase {
+    animation: db-ooh-cycle 31.5s infinite; opacity: 0; position: absolute;
+  }
+  #db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(1) { animation-delay: 0s; }
+  #db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(2) { animation-delay: 4.5s; }
+  #db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(3) { animation-delay: 9s; }
+  #db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(4) { animation-delay: 13.5s; }
+  #db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(5) { animation-delay: 18s; }
+  #db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(6) { animation-delay: 22.5s; }
+  #db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase:nth-child(7) { animation-delay: 27s; }
+  #db-ooh-banner.db-ooh-no-gsap .db-ooh-phrase--active { position: relative; }
+  @keyframes db-ooh-cycle {
+    0%, 2% { opacity: 0; }
+    3%, 12% { opacity: 1; position: relative; }
+    13%, 100% { opacity: 0; position: absolute; }
+  }
+
+  @media (max-width: 991px) {
+    #db-ooh-banner { padding: 40px 32px 32px; }
+    #db-ooh-banner .db-ooh-rotating { min-height: 65px; }
+    #db-ooh-banner .db-ooh-glow--1 { width: 200px; height: 200px; }
+    #db-ooh-banner .db-ooh-glow--2 { width: 180px; height: 180px; }
+    #db-ooh-banner .db-ooh-glow--3 { width: 150px; height: 150px; }
+  }
+  @media (max-width: 767px) {
+    #db-ooh-banner { padding: 32px 24px 28px; }
+    #db-ooh-banner .db-ooh-rotating { min-height: 55px; }
+    #db-ooh-banner .db-ooh-glow { filter: blur(60px); }
+  }
+  @media (max-width: 600px) {
+    #db-ooh-banner { padding: 28px 20px 24px; }
+    #db-ooh-banner .db-ooh-rotating { min-height: 50px; }
+  }
+  @media (max-width: 380px) {
+    #db-ooh-banner { padding: 24px 16px 20px; }
+    #db-ooh-banner .db-ooh-rotating { min-height: 40px; }
+  }
+</style>
+
+<div id="db-ooh-banner" aria-label="Campaign banner" role="banner">
+  <div class="db-ooh-glow db-ooh-glow--1"></div>
+  <div class="db-ooh-glow db-ooh-glow--2"></div>
+  <div class="db-ooh-glow db-ooh-glow--3"></div>
+  <div class="db-ooh-inner">
+    <div class="db-ooh-rotating" aria-live="polite" aria-atomic="true">
+      <div class="db-ooh-phrase db-ooh-phrase--active" data-index="0" data-orange="TO THE TABLE">BRING THE WHOLE FAMILY</div>
+      <div class="db-ooh-phrase" data-index="1">THE GRAND FINAL</div>
+      <div class="db-ooh-phrase" data-index="2">THE WESTERN DERBY</div>
+      <div class="db-ooh-phrase" data-index="3">WORLD-CLASS BRAGGING RIGHTS</div>
+      <div class="db-ooh-phrase" data-index="4">THE BIG GAME</div>
+      <div class="db-ooh-phrase" data-index="5" data-orange="PERFECTED HERE">WORLD-FAMOUS CLASSICS,</div>
+      <div class="db-ooh-phrase" data-index="6" data-orange="WHERE TO GO">NO MORE NEGOTIATING ON</div>
+    </div>
+    <div class="db-ooh-orange-wrap">
+      <div class="db-ooh-orange">AT HOME IN THE NORTH</div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var INTERVAL = 5000;
+  var MAX_RETRIES = 50;
+  var DEFAULT_ORANGE = 'AT HOME IN THE NORTH';
+
+  function splitWords(el) {
+    var text = el.textContent;
+    var words = text.trim().split(/\s+/);
+    el.innerHTML = '';
+    var wordEls = [];
+    words.forEach(function (word, i) {
+      var mask = document.createElement('div');
+      mask.className = 'db-ooh-word-mask';
+      var inner = document.createElement('div');
+      inner.className = 'db-ooh-word';
+      inner.textContent = word;
+      mask.appendChild(inner);
+      el.appendChild(mask);
+      if (i < words.length - 1) el.appendChild(document.createTextNode(' '));
+      wordEls.push(inner);
+    });
+    return { words: wordEls, revert: function () { el.textContent = text; } };
+  }
+
+  var animStyles = {
+    slideUp: {
+      enter: function (words, done) {
+        gsap.set(words, { y: '120%', rotate: 6 });
+        gsap.to(words, { y: '0%', rotate: 0, stagger: 0.05, duration: 0.6, ease: 'power4.out', onComplete: done });
+      },
+      exit: function (words, done) {
+        gsap.to(words, { y: '-120%', rotate: -4, stagger: { each: 0.03, from: 'start' }, duration: 0.4, ease: 'power3.in', onComplete: done });
+      }
+    },
+    dropIn: {
+      enter: function (words, done) {
+        gsap.set(words, { y: '-130%', rotate: -8 });
+        gsap.to(words, { y: '0%', rotate: 0, stagger: 0.05, duration: 0.7, ease: 'bounce.out', onComplete: done });
+      },
+      exit: function (words, done) {
+        gsap.to(words, { y: '130%', rotate: 6, stagger: { each: 0.03, from: 'end' }, duration: 0.35, ease: 'power3.in', onComplete: done });
+      }
+    }
+  };
+
+  var styleOrder = [animStyles.slideUp, animStyles.dropIn];
+  var styleIndex = 0;
+
+  function getNextStyle() {
+    var style = styleOrder[styleIndex % 2];
+    styleIndex++;
+    return style;
+  }
+
+  function initBanner() {
+    if (typeof gsap === 'undefined') {
+      if (!initBanner._retries) initBanner._retries = 0;
+      if (initBanner._retries++ < MAX_RETRIES) { setTimeout(initBanner, 100); return; }
+      var el = document.getElementById('db-ooh-banner');
+      if (el) el.classList.add('db-ooh-no-gsap');
+      return;
+    }
+
+    var banner = document.getElementById('db-ooh-banner');
+    if (!banner) return;
+
+    var phrases = banner.querySelectorAll('.db-ooh-phrase');
+    var orangeEl = banner.querySelector('.db-ooh-orange');
+    var glows = banner.querySelectorAll('.db-ooh-glow');
+    var total = phrases.length;
+    var current = 0;
+    var autoplayTimer = null;
+    var isAnimating = false;
+    var currentSplit = null;
+    var currentOrangeText = DEFAULT_ORANGE;
+
+    gsap.set(phrases, { opacity: 0, position: 'absolute' });
+    gsap.set(phrases[0], { opacity: 1, position: 'relative' });
+
+    glows.forEach(function (glow, i) {
+      gsap.to(glow, {
+        opacity: 0.12 + (i * 0.03),
+        x: (i % 2 === 0 ? 40 : -40), y: (i % 2 === 0 ? -30 : 30),
+        scale: 1.2, duration: 4 + i, repeat: -1, yoyo: true, ease: 'sine.inOut', delay: i * 0.8
+      });
+    });
+
+    function revertCurrent() {
+      if (currentSplit) { currentSplit.revert(); currentSplit = null; }
+    }
+
+    function getOrangeText(phrase) {
+      return phrase.getAttribute('data-orange') || DEFAULT_ORANGE;
+    }
+
+    function updateOrange(newText, direction) {
+      if (newText === currentOrangeText) return;
+      var isUp = direction === 'up';
+      var outY = isUp ? '-120%' : '120%';
+      var inY = isUp ? '120%' : '-120%';
+
+      gsap.to(orangeEl, {
+        y: outY, duration: 0.3, ease: 'power3.in',
+        onComplete: function () {
+          orangeEl.textContent = newText;
+          gsap.set(orangeEl, { y: inY });
+          gsap.to(orangeEl, { y: '0%', duration: 0.4, ease: 'power3.out' });
+        }
+      });
+      currentOrangeText = newText;
+    }
+
+    function goTo(next) {
+      if (next === current || isAnimating) return;
+      isAnimating = true;
+      var outgoing = phrases[current];
+      var incoming = phrases[next];
+      var style = getNextStyle();
+      var direction = (style === animStyles.slideUp) ? 'up' : 'down';
+
+      updateOrange(getOrangeText(incoming), direction);
+
+      revertCurrent();
+      var exitSplit = splitWords(outgoing);
+
+      style.exit(exitSplit.words, function () {
+        exitSplit.revert();
+        gsap.set(outgoing, { opacity: 0, position: 'absolute' });
+        gsap.set(incoming, { opacity: 1, position: 'relative' });
+        currentSplit = splitWords(incoming);
+        style.enter(currentSplit.words, function () { isAnimating = false; });
+      });
+      current = next;
+    }
+
+    function advance() { goTo((current + 1) % total); }
+    function startAutoplay() { stopAutoplay(); autoplayTimer = setInterval(advance, INTERVAL); }
+    function stopAutoplay() { if (autoplayTimer) { clearInterval(autoplayTimer); autoplayTimer = null; } }
+
+    banner.addEventListener('mouseenter', stopAutoplay);
+    banner.addEventListener('mouseleave', startAutoplay);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) stopAutoplay(); else startAutoplay();
+    });
+
+    orangeEl.textContent = getOrangeText(phrases[0]);
+    currentOrangeText = getOrangeText(phrases[0]);
+
+    gsap.set(phrases[0], { opacity: 1, position: 'relative' });
+    currentSplit = splitWords(phrases[0]);
+    var firstStyle = getNextStyle();
+    firstStyle.enter(currentSplit.words, function () { startAutoplay(); });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initBanner);
+  } else {
+    initBanner();
+  }
+})();
+</script>
+
+  <!-- === END BANNER === -->
+
+  <section class="mock-hero">
+    <span class="mock-hero-label">At home in Clarkson</span>
+    <h1 class="mock-hero-heading">Bring The Family Together</h1>
+    <span class="mock-hero-sub">[3D Viewer would appear here]</span>
+  </section>
+
+</body>
+</html>
