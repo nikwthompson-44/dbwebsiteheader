@@ -73,7 +73,8 @@
       display: flex;
       flex-direction: column;
       justify-content: center;
-      align-items: center;
+      align-items: flex-start;
+      padding-left: 28px;
       position: relative;
       overflow: hidden;
     }
@@ -85,7 +86,7 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       line-height: 1.15;
-      text-align: center;
+      text-align: left;
       opacity: 0;
     }
     #sig-campaign .phrase-orange {
@@ -96,7 +97,7 @@
       text-transform: uppercase;
       letter-spacing: 0.04em;
       line-height: 1.15;
-      text-align: center;
+      text-align: left;
       margin-top: 2px;
       opacity: 0;
     }
@@ -275,34 +276,41 @@
     var gifEncoder = null;
     var captureInterval = null;
 
-    // Build the main animation timeline
+    // Build the main animation timeline with alternating up/down directions
     function buildTimeline() {
       var tl = gsap.timeline({ repeat: -1 });
 
       phrases.forEach(function(phrase, i) {
+        // Alternate direction: even = slide up, odd = drop down
+        var isUp = (i % 2 === 0);
+        var enterFrom = isUp ? 20 : -20;
+        var exitTo = isUp ? -20 : 20;
+        var enterEase = isUp ? 'power4.out' : 'bounce.out';
+        var enterDuration = isUp ? 0.5 : 0.6;
+
         // Set text
         tl.call(function() {
           whiteEl.textContent = phrase.white;
           orangeEl.textContent = phrase.orange || DEFAULT_ORANGE;
         });
 
-        // Fade in
-        tl.to(whiteEl, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '>' );
-        tl.to(orangeEl, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '<0.1');
+        // Set start position
+        tl.set(whiteEl, { y: enterFrom });
+        tl.set(orangeEl, { y: enterFrom });
+
+        // Animate in
+        tl.to(whiteEl, { opacity: 1, y: 0, duration: enterDuration, ease: enterEase }, '>' );
+        tl.to(orangeEl, { opacity: 1, y: 0, duration: enterDuration, ease: enterEase }, '<0.08');
 
         // Hold
         tl.to({}, { duration: 3 });
 
-        // Fade out
-        tl.to(whiteEl, { opacity: 0, y: -15, duration: 0.3, ease: 'power2.in' });
-        tl.to(orangeEl, { opacity: 0, y: -15, duration: 0.3, ease: 'power2.in' }, '<');
-
-        // Reset position for next
-        tl.set(whiteEl, { y: 15 });
-        tl.set(orangeEl, { y: 15 });
+        // Animate out (opposite direction)
+        tl.to(whiteEl, { opacity: 0, y: exitTo, duration: 0.3, ease: 'power3.in' });
+        tl.to(orangeEl, { opacity: 0, y: exitTo, duration: 0.3, ease: 'power3.in' }, '<');
 
         // Brief pause between phrases
-        tl.to({}, { duration: 0.2 });
+        tl.to({}, { duration: 0.15 });
       });
 
       return tl;
@@ -347,7 +355,7 @@
       var wY = getTranslateY(whiteEl);
       var oY = getTranslateY(orangeEl);
 
-      ctx.textAlign = 'center';
+      ctx.textAlign = 'left';
       ctx.textBaseline = 'middle';
 
       // White text
@@ -357,7 +365,7 @@
         ctx.fillStyle = '#FCFCFC';
         ctx.font = 'bold 26px Arial, Helvetica, sans-serif';
         ctx.letterSpacing = '1px';
-        ctx.fillText(whiteEl.textContent, 300, 36 + wY);
+        ctx.fillText(whiteEl.textContent, 28, 36 + wY);
         ctx.restore();
       }
 
@@ -368,7 +376,7 @@
         ctx.fillStyle = '#FE7000';
         ctx.font = 'bold 26px Arial, Helvetica, sans-serif';
         ctx.letterSpacing = '1px';
-        ctx.fillText(orangeEl.textContent, 300, 66 + oY);
+        ctx.fillText(orangeEl.textContent, 28, 66 + oY);
         ctx.restore();
       }
     }
