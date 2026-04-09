@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>D&B Email Signature — Preview & GIF Generator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #f0f0f0;
+      color: #333;
+      padding: 40px 20px;
+    }
+    h1 { font-size: 24px; margin-bottom: 8px; }
+    .subtitle { color: #666; margin-bottom: 32px; }
+    .section { margin-bottom: 32px; }
+    .section h2 { font-size: 18px; margin-bottom: 12px; }
+    .preview-wrapper {
+      background: #fff;
+      padding: 40px;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      display: inline-block;
+    }
+
+    /* === Email Signature Container === */
+    #sig-container {
+      width: 600px;
+      overflow: hidden;
+      border-radius: 4px;
+    }
+
+    /* Business Card */
+    #sig-card {
+      width: 600px;
+      height: 120px;
+      background: #17179A;
+      display: flex;
+      align-items: center;
+      padding: 0 28px;
+      position: relative;
+    }
+    #sig-card .logo {
+      width: 90px;
+      height: 90px;
+      object-fit: contain;
+      margin-right: 24px;
+      flex-shrink: 0;
+    }
+    #sig-card .info {
+      color: #FCFCFC;
+    }
+    #sig-card .info .name {
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      font-size: 22px;
+      letter-spacing: 0.02em;
+      margin-bottom: 4px;
+    }
+    #sig-card .info .phone {
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+      opacity: 0.85;
+    }
+
+    /* Campaign Text Area */
+    #sig-campaign {
+      width: 600px;
+      height: 100px;
+      background: #17179A;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+    #sig-campaign .phrase-white {
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      font-size: 26px;
+      color: #FCFCFC;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1.15;
+      text-align: center;
+      opacity: 0;
+    }
+    #sig-campaign .phrase-orange {
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 700;
+      font-size: 26px;
+      color: #FE7000;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      line-height: 1.15;
+      text-align: center;
+      margin-top: 2px;
+      opacity: 0;
+    }
+
+    /* Gradient Accent Bar */
+    .accent-bar {
+      width: 600px;
+      height: 4px;
+      display: flex;
+    }
+    .accent-bar .seg { flex: 1; }
+    .accent-bar .seg-cyan { background: #00CBFF; }
+    .accent-bar .seg-pink { background: #FF00B2; }
+    .accent-bar .seg-orange { background: #FE7000; }
+    .accent-bar .seg-yellow { background: #FFBA00; }
+
+    /* Controls */
+    .controls {
+      margin-top: 20px;
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .btn {
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-primary {
+      background: #17179A;
+      color: #fff;
+    }
+    .btn-primary:hover { background: #1e1ecc; }
+    .btn-primary:disabled { background: #999; cursor: not-allowed; }
+    .btn-secondary {
+      background: #e0e0e0;
+      color: #333;
+    }
+    .btn-secondary:hover { background: #d0d0d0; }
+    #record-status {
+      font-size: 13px;
+      color: #666;
+    }
+
+    /* Canvas for GIF capture */
+    #gif-canvas {
+      position: absolute;
+      left: -9999px;
+      top: -9999px;
+    }
+
+    /* Snippet area */
+    .snippet-box {
+      background: #1e1e1e;
+      color: #d4d4d4;
+      padding: 16px;
+      border-radius: 6px;
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      line-height: 1.5;
+      overflow-x: auto;
+      white-space: pre;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .copy-btn {
+      margin-top: 8px;
+    }
+    .instructions {
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      line-height: 1.6;
+    }
+    .instructions li { margin-bottom: 8px; }
+    .instructions code {
+      background: #f0f0f0;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>D&B Email Signature — Animated GIF Generator</h1>
+  <p class="subtitle">Preview the campaign animation and export it as a GIF for your email signature.</p>
+
+  <!-- ===== PREVIEW ===== -->
+  <div class="section">
+    <h2>Preview</h2>
+    <div class="preview-wrapper">
+      <div id="sig-container">
+        <!-- Top accent bar -->
+        <div class="accent-bar">
+          <div class="seg seg-cyan"></div>
+          <div class="seg seg-pink"></div>
+          <div class="seg seg-orange"></div>
+          <div class="seg seg-yellow"></div>
+        </div>
+
+        <!-- Business Card (static HTML — shown for context) -->
+        <div id="sig-card">
+          <img class="logo" src="https://image.e.nightowlentertainment.au/lib/fe3511737164047a711770/m/1/ed71207e-422e-43a8-88e9-51a5239f7fde.png" alt="Dave &amp; Buster's">
+          <div class="info">
+            <div class="name">Full Name</div>
+            <div class="phone">08 6208 6699</div>
+          </div>
+        </div>
+
+        <!-- Campaign Text (animated — this is what gets captured as GIF) -->
+        <div id="sig-campaign">
+          <div class="phrase-white"></div>
+          <div class="phrase-orange"></div>
+        </div>
+
+        <!-- Bottom accent bar -->
+        <div class="accent-bar">
+          <div class="seg seg-cyan"></div>
+          <div class="seg seg-pink"></div>
+          <div class="seg seg-orange"></div>
+          <div class="seg seg-yellow"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="controls">
+      <button id="btn-record" class="btn btn-primary" onclick="startRecording()">Record GIF</button>
+      <button id="btn-stop" class="btn btn-secondary" onclick="stopRecording()" style="display:none;">Stop & Download</button>
+      <span id="record-status"></span>
+    </div>
+  </div>
+
+  <!-- ===== HTML SNIPPET ===== -->
+  <div class="section">
+    <h2>Email Signature HTML (for Salesforce Service Cloud)</h2>
+    <p style="margin-bottom:12px; color:#666;">Copy this HTML into your Salesforce email signature settings. Replace the GIF URL placeholder with the URL where you host the exported GIF.</p>
+    <div class="snippet-box" id="html-snippet"></div>
+    <button class="btn btn-secondary copy-btn" onclick="copySnippet()">Copy HTML</button>
+  </div>
+
+  <!-- ===== INSTRUCTIONS ===== -->
+  <div class="section">
+    <h2>How to Use</h2>
+    <div class="instructions">
+      <ol>
+        <li><strong>Export the GIF:</strong> Click "Record GIF" above. The animation will play through one full cycle, then the GIF downloads automatically.</li>
+        <li><strong>Host the GIF:</strong> Upload the exported <code>.gif</code> file to your image hosting (e.g., your CMS, S3 bucket, or the same host as your other email assets).</li>
+        <li><strong>Update the HTML:</strong> In the HTML snippet above, replace <code>YOUR_GIF_URL_HERE</code> with the public URL of the hosted GIF.</li>
+        <li><strong>Add to Salesforce:</strong> Go to <strong>Setup → Email → My Email Settings</strong> (or Organization-Wide Email Signatures). Paste the HTML snippet into the signature editor (switch to HTML/source mode).</li>
+        <li><strong>Salesforce merge fields:</strong> The name uses <code>{!$User.FirstName} {!$User.LastName}</code> so each user sees their own name. The phone is hardcoded to <code>08 6208 6699</code>.</li>
+        <li><strong>Test:</strong> Send a test email to Gmail, Outlook, and Apple Mail to verify. Outlook desktop may show only the first GIF frame (static), while other clients will animate.</li>
+      </ol>
+    </div>
+  </div>
+
+  <!-- Hidden canvas for GIF capture -->
+  <canvas id="gif-canvas" width="600" height="100"></canvas>
+
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <!-- gif.js via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.js"></script>
+
+  <script>
+  (function() {
+    // Campaign phrases
+    var phrases = [
+      { white: 'BRING THE WHOLE FAMILY', orange: 'TO THE TABLE' },
+      { white: 'THE GRAND FINAL', orange: '' },
+      { white: 'THE WESTERN DERBY', orange: '' },
+      { white: 'WORLD-CLASS BRAGGING RIGHTS', orange: '' },
+      { white: 'THE BIG GAME', orange: '' },
+      { white: 'WORLD-FAMOUS CLASSICS,', orange: 'PERFECTED HERE' },
+      { white: 'NO MORE NEGOTIATING ON', orange: 'WHERE TO GO' }
+    ];
+
+    var whiteEl = document.querySelector('#sig-campaign .phrase-white');
+    var orangeEl = document.querySelector('#sig-campaign .phrase-orange');
+    var currentPhrase = 0;
+    var animationTimeline = null;
+    var isRecording = false;
+    var gifEncoder = null;
+    var captureInterval = null;
+
+    // Build the main animation timeline
+    function buildTimeline() {
+      var tl = gsap.timeline({ repeat: -1 });
+
+      phrases.forEach(function(phrase, i) {
+        // Set text
+        tl.call(function() {
+          whiteEl.textContent = phrase.white;
+          orangeEl.textContent = phrase.orange;
+        });
+
+        // Fade in
+        tl.to(whiteEl, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '>' );
+        if (phrase.orange) {
+          tl.to(orangeEl, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '<0.1');
+        }
+
+        // Hold
+        tl.to({}, { duration: 3 });
+
+        // Fade out
+        tl.to(whiteEl, { opacity: 0, y: -15, duration: 0.3, ease: 'power2.in' });
+        if (phrase.orange) {
+          tl.to(orangeEl, { opacity: 0, y: -15, duration: 0.3, ease: 'power2.in' }, '<');
+        } else {
+          tl.set(orangeEl, { opacity: 0 });
+        }
+
+        // Reset position for next
+        tl.set(whiteEl, { y: 15 });
+        tl.set(orangeEl, { y: 15 });
+
+        // Brief pause between phrases
+        tl.to({}, { duration: 0.2 });
+      });
+
+      return tl;
+    }
+
+    // Initialize animation
+    function init() {
+      gsap.set(whiteEl, { opacity: 0, y: 15 });
+      gsap.set(orangeEl, { opacity: 0, y: 15 });
+      animationTimeline = buildTimeline();
+    }
+
+    // --- GIF Recording ---
+    function drawCampaignToCanvas() {
+      var canvas = document.getElementById('gif-canvas');
+      var ctx = canvas.getContext('2d');
+
+      // Draw blue background
+      ctx.fillStyle = '#17179A';
+      ctx.fillRect(0, 0, 600, 100);
+
+      // Get current computed styles
+      var wStyle = window.getComputedStyle(whiteEl);
+      var oStyle = window.getComputedStyle(orangeEl);
+
+      var wOpacity = parseFloat(wStyle.opacity);
+      var oOpacity = parseFloat(oStyle.opacity);
+
+      // Parse transform to get Y offset
+      function getTranslateY(el) {
+        var st = window.getComputedStyle(el);
+        var matrix = st.transform || st.webkitTransform;
+        if (!matrix || matrix === 'none') return 0;
+        var values = matrix.match(/matrix\((.+)\)/);
+        if (values) {
+          var parts = values[1].split(',');
+          return parseFloat(parts[5]) || 0;
+        }
+        return 0;
+      }
+
+      var wY = getTranslateY(whiteEl);
+      var oY = getTranslateY(orangeEl);
+
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+
+      // White text
+      if (wOpacity > 0.01) {
+        ctx.save();
+        ctx.globalAlpha = wOpacity;
+        ctx.fillStyle = '#FCFCFC';
+        ctx.font = 'bold 26px Arial, Helvetica, sans-serif';
+        ctx.letterSpacing = '1px';
+        var hasOrange = orangeEl.textContent && orangeEl.textContent.trim().length > 0;
+        var whiteY = hasOrange ? 36 + wY : 50 + wY;
+        ctx.fillText(whiteEl.textContent, 300, whiteY);
+        ctx.restore();
+      }
+
+      // Orange text
+      if (oOpacity > 0.01 && orangeEl.textContent.trim()) {
+        ctx.save();
+        ctx.globalAlpha = oOpacity;
+        ctx.fillStyle = '#FE7000';
+        ctx.font = 'bold 26px Arial, Helvetica, sans-serif';
+        ctx.letterSpacing = '1px';
+        ctx.fillText(orangeEl.textContent, 300, 66 + oY);
+        ctx.restore();
+      }
+    }
+
+    window.startRecording = function() {
+      var btn = document.getElementById('btn-record');
+      var stopBtn = document.getElementById('btn-stop');
+      var status = document.getElementById('record-status');
+
+      btn.disabled = true;
+      btn.style.display = 'none';
+      stopBtn.style.display = 'inline-block';
+      status.textContent = 'Recording... (capturing one full cycle)';
+      isRecording = true;
+
+      // Calculate total duration of one cycle
+      var phraseDuration = 0.4 + 0.1 + 3 + 0.3 + 0.2; // ~4s per phrase
+      var totalDuration = phrases.length * phraseDuration;
+      var totalMs = Math.ceil(totalDuration * 1000);
+
+      // Create GIF encoder
+      gifEncoder = new GIF({
+        workers: 2,
+        quality: 10,
+        width: 600,
+        height: 100,
+        workerScript: 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
+      });
+
+      // Restart animation from beginning
+      animationTimeline.restart();
+
+      // Capture frames at ~15fps
+      var frameInterval = 66; // ~15fps
+      var elapsed = 0;
+
+      captureInterval = setInterval(function() {
+        drawCampaignToCanvas();
+        var canvas = document.getElementById('gif-canvas');
+        gifEncoder.addFrame(canvas, { copy: true, delay: frameInterval });
+        elapsed += frameInterval;
+
+        var pct = Math.min(100, Math.round((elapsed / totalMs) * 100));
+        status.textContent = 'Recording... ' + pct + '%';
+
+        if (elapsed >= totalMs) {
+          finishRecording();
+        }
+      }, frameInterval);
+    };
+
+    function finishRecording() {
+      clearInterval(captureInterval);
+      isRecording = false;
+
+      var status = document.getElementById('record-status');
+      status.textContent = 'Encoding GIF...';
+
+      gifEncoder.on('finished', function(blob) {
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = 'db-email-signature-campaign.gif';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+
+        var sizeMB = (blob.size / (1024 * 1024)).toFixed(2);
+        status.textContent = 'GIF downloaded! (' + sizeMB + ' MB)';
+
+        var btn = document.getElementById('btn-record');
+        var stopBtn = document.getElementById('btn-stop');
+        btn.disabled = false;
+        btn.style.display = 'inline-block';
+        stopBtn.style.display = 'none';
+      });
+
+      gifEncoder.render();
+    }
+
+    window.stopRecording = function() {
+      finishRecording();
+    };
+
+    // --- HTML Snippet ---
+    function populateSnippet() {
+      var html = [
+        '<!-- D&B Email Signature — Paste into Salesforce Service Cloud -->',
+        '<table width="600" border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;max-width:600px;width:100%;">',
+        '  <!-- Top Accent Bar -->',
+        '  <tr>',
+        '    <td style="padding:0;font-size:0;line-height:0;">',
+        '      <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">',
+        '        <tr>',
+        '          <td width="25%" height="4" style="background-color:#00CBFF;font-size:0;line-height:0;">&nbsp;</td>',
+        '          <td width="25%" height="4" style="background-color:#FF00B2;font-size:0;line-height:0;">&nbsp;</td>',
+        '          <td width="25%" height="4" style="background-color:#FE7000;font-size:0;line-height:0;">&nbsp;</td>',
+        '          <td width="25%" height="4" style="background-color:#FFBA00;font-size:0;line-height:0;">&nbsp;</td>',
+        '        </tr>',
+        '      </table>',
+        '    </td>',
+        '  </tr>',
+        '  <!-- Business Card -->',
+        '  <tr>',
+        '    <td bgcolor="#17179A" style="background-color:#17179A;padding:16px 28px;">',
+        '      <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">',
+        '        <tr>',
+        '          <td width="90" valign="middle" style="padding-right:20px;">',
+        '            <img src="https://image.e.nightowlentertainment.au/lib/fe3511737164047a711770/m/1/ed71207e-422e-43a8-88e9-51a5239f7fde.png" width="90" height="90" alt="Dave and Busters" style="display:block;border:0;outline:none;" />',
+        '          </td>',
+        '          <td valign="middle">',
+        '            <p style="margin:0;padding:0;color:#FCFCFC;font-family:Arial,Helvetica,sans-serif;font-weight:bold;font-size:22px;line-height:1.2;mso-line-height-rule:exactly;">',
+        '              {!$User.FirstName} {!$User.LastName}',
+        '            </p>',
+        '            <p style="margin:4px 0 0 0;padding:0;color:#FCFCFC;font-family:Arial,Helvetica,sans-serif;font-weight:normal;font-size:14px;line-height:1.3;opacity:0.85;mso-line-height-rule:exactly;">',
+        '              08 6208 6699',
+        '            </p>',
+        '          </td>',
+        '        </tr>',
+        '      </table>',
+        '    </td>',
+        '  </tr>',
+        '  <!-- Campaign Animation GIF -->',
+        '  <tr>',
+        '    <td bgcolor="#17179A" style="background-color:#17179A;padding:0;font-size:0;line-height:0;">',
+        '      <img src="YOUR_GIF_URL_HERE" width="600" height="100" alt="Dave and Busters Campaign" style="display:block;border:0;outline:none;width:100%;max-width:600px;" />',
+        '    </td>',
+        '  </tr>',
+        '  <!-- Bottom Accent Bar -->',
+        '  <tr>',
+        '    <td style="padding:0;font-size:0;line-height:0;">',
+        '      <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">',
+        '        <tr>',
+        '          <td width="25%" height="4" style="background-color:#00CBFF;font-size:0;line-height:0;">&nbsp;</td>',
+        '          <td width="25%" height="4" style="background-color:#FF00B2;font-size:0;line-height:0;">&nbsp;</td>',
+        '          <td width="25%" height="4" style="background-color:#FE7000;font-size:0;line-height:0;">&nbsp;</td>',
+        '          <td width="25%" height="4" style="background-color:#FFBA00;font-size:0;line-height:0;">&nbsp;</td>',
+        '        </tr>',
+        '      </table>',
+        '    </td>',
+        '  </tr>',
+        '</table>'
+      ].join('\n');
+
+      document.getElementById('html-snippet').textContent = html;
+    }
+
+    window.copySnippet = function() {
+      var text = document.getElementById('html-snippet').textContent;
+      navigator.clipboard.writeText(text).then(function() {
+        var btn = document.querySelector('.copy-btn');
+        var orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(function() { btn.textContent = orig; }, 2000);
+      });
+    };
+
+    // Init
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', function() { init(); populateSnippet(); });
+    } else {
+      init();
+      populateSnippet();
+    }
+  })();
+  </script>
+</body>
+</html>
