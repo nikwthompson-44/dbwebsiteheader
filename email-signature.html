@@ -288,26 +288,44 @@
         var enterEase = isUp ? 'power4.out' : 'bounce.out';
         var enterDuration = isUp ? 0.5 : 0.6;
 
+        var currentOrange = phrase.orange || DEFAULT_ORANGE;
+        var prevOrange = i === 0 ? '' : (phrases[i - 1].orange || DEFAULT_ORANGE);
+        var nextOrange = i < phrases.length - 1 ? (phrases[i + 1].orange || DEFAULT_ORANGE) : (phrases[0].orange || DEFAULT_ORANGE);
+        var orangeChangedFromPrev = (i === 0) || (currentOrange !== prevOrange);
+        var orangeChangesToNext = (currentOrange !== nextOrange);
+
         // Set text
         tl.call(function() {
           whiteEl.textContent = phrase.white;
-          orangeEl.textContent = phrase.orange || DEFAULT_ORANGE;
+          orangeEl.textContent = currentOrange;
         });
 
-        // Set start position
+        // Set start position for white (always animates)
         tl.set(whiteEl, { y: enterFrom });
-        tl.set(orangeEl, { y: enterFrom });
 
-        // Animate in
+        // Only reposition orange if it changed
+        if (orangeChangedFromPrev) {
+          tl.set(orangeEl, { y: enterFrom });
+        }
+
+        // Animate in — white always
         tl.to(whiteEl, { opacity: 1, y: 0, duration: enterDuration, ease: enterEase }, '>' );
-        tl.to(orangeEl, { opacity: 1, y: 0, duration: enterDuration, ease: enterEase }, '<0.08');
+        // Orange: animate in only if it changed, otherwise just ensure visible
+        if (orangeChangedFromPrev) {
+          tl.to(orangeEl, { opacity: 1, y: 0, duration: enterDuration, ease: enterEase }, '<0.08');
+        } else {
+          tl.set(orangeEl, { opacity: 1, y: 0 });
+        }
 
         // Hold
         tl.to({}, { duration: 3 });
 
-        // Animate out (opposite direction)
+        // Animate out — white always
         tl.to(whiteEl, { opacity: 0, y: exitTo, duration: 0.3, ease: 'power3.in' });
-        tl.to(orangeEl, { opacity: 0, y: exitTo, duration: 0.3, ease: 'power3.in' }, '<');
+        // Orange: only animate out if the next phrase has different orange text
+        if (orangeChangesToNext) {
+          tl.to(orangeEl, { opacity: 0, y: exitTo, duration: 0.3, ease: 'power3.in' }, '<');
+        }
 
         // Brief pause between phrases
         tl.to({}, { duration: 0.15 });
