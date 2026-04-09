@@ -410,12 +410,11 @@
       status.textContent = 'Recording... (capturing one full cycle)';
       isRecording = true;
 
-      // Smart GIF capture: only capture frames during transitions,
-      // use single frames with long delays for static holds.
-      // This massively reduces file size.
+      // Real-time GIF capture with smart hold detection.
+      // Records at 8fps during transitions, detects holds and uses
+      // single frames with long delays to keep file size small.
       var gifWidth = 600;
       var gifHeight = 100;
-      var gifScale = 1; // full resolution
 
       gifEncoder = new GIF({
         workers: 2,
@@ -426,61 +425,79 @@
         workerScript: gifWorkerBlobUrl || 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
       });
 
-      function captureFrame(delay) {
+      // Restart animation from the beginning
+      animationTimeline.restart();
+
+      var frameInterval = 125; // ~8fps
+      var totalFrames = 0;
+      var lastFrameData = null;
+      var holdStart = 0;
+      var holdFrame = null;
+
+      // Calculate one full cycle duration
+      // Each phrase: enter(0.5-0.6) + hold(2) + exit(0.3) + gap(0.15) ≈ 3s
+      var cycleDuration = phrases.length * 3.05;
+      var totalMs = Math.ceil(cycleDuration * 1000);
+      var elapsed = 0;
+
+      function getCanvasSignature() {
+        var canvas = document.getElementById('gif-canvas');
+        var ctx = canvas.getContext('2d');
+        // Sample a few pixels to detect if frame changed
+        var d = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+        // Quick hash: sample every 1000th pixel
+        var sig = '';
+        for (var i = 0; i < d.length; i += 4000) {
+          sig += d[i] + ',' + d[i+1] + ',' + d[i+2] + ',';
+        }
+        return sig;
+      }
+
+      captureInterval = setInterval(function() {
         drawCampaignToCanvas();
         var canvas = document.getElementById('gif-canvas');
-        gifEncoder.addFrame(canvas, { copy: true, delay: delay });
-      }
+        var sig = getCanvasSignature();
 
-      // Restart animation and pause it — we'll step through manually
-      animationTimeline.pause().progress(0);
-
-      var transitionDuration = 0.6; // max enter duration
-      var holdDuration = 2;
-      var exitDuration = 0.3;
-      var gapDuration = 0.15;
-      var phraseDuration = transitionDuration + holdDuration + exitDuration + gapDuration;
-      var totalDuration = phrases.length * phraseDuration;
-      var fps = 8;
-      var frameStep = 1 / fps; // time step per frame in seconds
-
-      var t = 0;
-      var totalFrames = 0;
-      status.textContent = 'Capturing frames...';
-
-      // Step through the timeline and capture smartly
-      function captureAllFrames() {
-        while (t < totalDuration) {
-          animationTimeline.progress(t / totalDuration);
-
-          // Figure out where we are within the current phrase
-          var phraseTime = t % phraseDuration;
-          var inTransition = phraseTime < transitionDuration;
-          var inHold = phraseTime >= transitionDuration && phraseTime < (transitionDuration + holdDuration);
-          var inExit = phraseTime >= (transitionDuration + holdDuration);
-
-          if (inHold) {
-            // Static hold — capture one frame with the full hold delay
-            var remainingHold = (transitionDuration + holdDuration) - phraseTime;
-            captureFrame(Math.round(remainingHold * 1000));
-            t += remainingHold;
-            totalFrames++;
-          } else {
-            // Transition — capture at normal fps
-            captureFrame(Math.round(frameStep * 1000));
-            t += frameStep;
+        if (sig === lastFrameData) {
+          // Frame hasn't changed — we're in a hold, just track time
+          elapsed += frameInterval;
+        } else {
+          // Frame changed — flush any pending hold frame first
+          if (holdFrame && holdStart > 0) {
+            var holdDuration = elapsed - holdStart;
+            gifEncoder.addFrame(holdFrame, { copy: true, delay: holdDuration });
             totalFrames++;
           }
+
+          // Capture this new frame
+          var tempCanvas = document.createElement('canvas');
+          tempCanvas.width = gifWidth;
+          tempCanvas.height = gifHeight;
+          tempCanvas.getContext('2d').drawImage(canvas, 0, 0);
+          gifEncoder.addFrame(canvas, { copy: true, delay: frameInterval });
+          totalFrames++;
+
+          holdFrame = tempCanvas;
+          holdStart = elapsed;
+          lastFrameData = sig;
+          elapsed += frameInterval;
         }
 
-        status.textContent = 'Encoding GIF... (' + totalFrames + ' frames)';
-        gifEncoder.render();
-      }
+        var pct = Math.min(100, Math.round((elapsed / totalMs) * 100));
+        status.textContent = 'Recording... ' + pct + '% (' + totalFrames + ' frames)';
 
-      // Small delay to let timeline initialize
-      setTimeout(function() {
-        captureAllFrames();
-      }, 100);
+        if (elapsed >= totalMs) {
+          // Flush final hold
+          if (holdFrame && elapsed > holdStart + frameInterval) {
+            var finalHold = elapsed - holdStart - frameInterval;
+            if (finalHold > 0) {
+              gifEncoder.addFrame(holdFrame, { copy: true, delay: finalHold });
+              totalFrames++;
+            }
+          }
+          finishRecording();
+        }
+      }, frameInterval);
     };
 
     function finishRecording() {
