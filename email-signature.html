@@ -197,6 +197,14 @@
     <h2>Preview</h2>
     <div class="preview-wrapper">
       <div id="sig-container">
+        <!-- Top accent bar -->
+        <div class="accent-bar">
+          <div class="seg seg-cyan"></div>
+          <div class="seg seg-pink"></div>
+          <div class="seg seg-orange"></div>
+          <div class="seg seg-yellow"></div>
+        </div>
+
         <!-- Business Card (static HTML — shown for context) -->
         <div id="sig-card">
           <img class="logo" src="https://image.e.nightowlentertainment.au/lib/fe3511737164047a711770/m/1/bf88a757-4191-4ce4-a66d-d26d12bb4425.png" alt="Dave &amp; Buster's">
@@ -212,6 +220,13 @@
           <div class="phrase-orange"></div>
         </div>
 
+        <!-- Bottom accent bar -->
+        <div class="accent-bar">
+          <div class="seg seg-cyan"></div>
+          <div class="seg seg-pink"></div>
+          <div class="seg seg-orange"></div>
+          <div class="seg seg-yellow"></div>
+        </div>
       </div>
     </div>
 
@@ -271,13 +286,12 @@
     var DEFAULT_ORANGE = 'AT HOME IN CLARKSON';
 
     var phrases = [
-      { white: 'BRING THE WHOLE FAMILY', orange: 'TO THE TABLE' },
+      { white: 'WORLD-FAMOUS CLASSICS', orange: '' },
+      { white: 'THE WHOLE FAMILY TOGETHER', orange: '' },
       { white: 'THE GRAND FINAL', orange: '' },
       { white: 'THE WESTERN DERBY', orange: '' },
       { white: 'ULTIMATE BRAGGING RIGHTS', orange: '' },
-      { white: 'THE BIG GAME', orange: '' },
-      { white: 'WORLD-FAMOUS CLASSICS,', orange: 'PERFECTED HERE' },
-      { white: 'NO MORE NEGOTIATING ON', orange: 'WHERE TO GO' }
+      { white: 'THE BIG GAME', orange: '' }
     ];
 
     var whiteEl = document.querySelector('#sig-campaign .phrase-blue');
