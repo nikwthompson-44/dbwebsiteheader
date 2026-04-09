@@ -196,17 +196,9 @@
     <h2>Preview</h2>
     <div class="preview-wrapper">
       <div id="sig-container">
-        <!-- Top accent bar -->
-        <div class="accent-bar">
-          <div class="seg seg-cyan"></div>
-          <div class="seg seg-pink"></div>
-          <div class="seg seg-orange"></div>
-          <div class="seg seg-yellow"></div>
-        </div>
-
         <!-- Business Card (static HTML — shown for context) -->
         <div id="sig-card">
-          <img class="logo" src="https://image.e.nightowlentertainment.au/lib/fe3511737164047a711770/m/1/ed71207e-422e-43a8-88e9-51a5239f7fde.png" alt="Dave &amp; Buster's">
+          <img class="logo" src="https://image.e.nightowlentertainment.au/lib/fe3511737164047a711770/m/1/bf88a757-4191-4ce4-a66d-d26d12bb4425.png" alt="Dave &amp; Buster's">
           <div class="info">
             <div class="name">Full Name</div>
             <div class="phone">08 6208 6699</div>
@@ -219,13 +211,6 @@
           <div class="phrase-orange"></div>
         </div>
 
-        <!-- Bottom accent bar -->
-        <div class="accent-bar">
-          <div class="seg seg-cyan"></div>
-          <div class="seg seg-pink"></div>
-          <div class="seg seg-orange"></div>
-          <div class="seg seg-yellow"></div>
-        </div>
       </div>
     </div>
 
@@ -270,6 +255,8 @@
   <script>
   (function() {
     // Campaign phrases
+    var DEFAULT_ORANGE = 'AT HOME IN CLARKSON';
+
     var phrases = [
       { white: 'BRING THE WHOLE FAMILY', orange: 'TO THE TABLE' },
       { white: 'THE GRAND FINAL', orange: '' },
@@ -296,25 +283,19 @@
         // Set text
         tl.call(function() {
           whiteEl.textContent = phrase.white;
-          orangeEl.textContent = phrase.orange;
+          orangeEl.textContent = phrase.orange || DEFAULT_ORANGE;
         });
 
         // Fade in
         tl.to(whiteEl, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '>' );
-        if (phrase.orange) {
-          tl.to(orangeEl, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '<0.1');
-        }
+        tl.to(orangeEl, { opacity: 1, y: 0, duration: 0.4, ease: 'power2.out' }, '<0.1');
 
         // Hold
         tl.to({}, { duration: 3 });
 
         // Fade out
         tl.to(whiteEl, { opacity: 0, y: -15, duration: 0.3, ease: 'power2.in' });
-        if (phrase.orange) {
-          tl.to(orangeEl, { opacity: 0, y: -15, duration: 0.3, ease: 'power2.in' }, '<');
-        } else {
-          tl.set(orangeEl, { opacity: 0 });
-        }
+        tl.to(orangeEl, { opacity: 0, y: -15, duration: 0.3, ease: 'power2.in' }, '<');
 
         // Reset position for next
         tl.set(whiteEl, { y: 15 });
@@ -376,14 +357,12 @@
         ctx.fillStyle = '#FCFCFC';
         ctx.font = 'bold 26px Arial, Helvetica, sans-serif';
         ctx.letterSpacing = '1px';
-        var hasOrange = orangeEl.textContent && orangeEl.textContent.trim().length > 0;
-        var whiteY = hasOrange ? 36 + wY : 50 + wY;
-        ctx.fillText(whiteEl.textContent, 300, whiteY);
+        ctx.fillText(whiteEl.textContent, 300, 36 + wY);
         ctx.restore();
       }
 
-      // Orange text
-      if (oOpacity > 0.01 && orangeEl.textContent.trim()) {
+      // Orange text (always present — defaults to "AT HOME IN CLARKSON")
+      if (oOpacity > 0.01) {
         ctx.save();
         ctx.globalAlpha = oOpacity;
         ctx.fillStyle = '#FE7000';
@@ -479,32 +458,19 @@
       var html = [
         '<!-- D&B Email Signature — Paste into Salesforce Service Cloud -->',
         '<table width="600" border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;max-width:600px;width:100%;">',
-        '  <!-- Top Accent Bar -->',
-        '  <tr>',
-        '    <td style="padding:0;font-size:0;line-height:0;">',
-        '      <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">',
-        '        <tr>',
-        '          <td width="25%" height="4" style="background-color:#00CBFF;font-size:0;line-height:0;">&nbsp;</td>',
-        '          <td width="25%" height="4" style="background-color:#FF00B2;font-size:0;line-height:0;">&nbsp;</td>',
-        '          <td width="25%" height="4" style="background-color:#FE7000;font-size:0;line-height:0;">&nbsp;</td>',
-        '          <td width="25%" height="4" style="background-color:#FFBA00;font-size:0;line-height:0;">&nbsp;</td>',
-        '        </tr>',
-        '      </table>',
-        '    </td>',
-        '  </tr>',
         '  <!-- Business Card -->',
         '  <tr>',
         '    <td bgcolor="#17179A" style="background-color:#17179A;padding:16px 28px;">',
         '      <table border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">',
         '        <tr>',
         '          <td width="90" valign="middle" style="padding-right:20px;">',
-        '            <img src="https://image.e.nightowlentertainment.au/lib/fe3511737164047a711770/m/1/ed71207e-422e-43a8-88e9-51a5239f7fde.png" width="90" height="90" alt="Dave and Busters" style="display:block;border:0;outline:none;" />',
+        '            <img src="https://image.e.nightowlentertainment.au/lib/fe3511737164047a711770/m/1/bf88a757-4191-4ce4-a66d-d26d12bb4425.png" width="90" height="90" alt="Dave and Busters" style="display:block;border:0;outline:none;" />',
         '          </td>',
         '          <td valign="middle">',
         '            <p style="margin:0;padding:0;color:#FCFCFC;font-family:Arial,Helvetica,sans-serif;font-weight:bold;font-size:22px;line-height:1.2;mso-line-height-rule:exactly;">',
         '              {!$User.FirstName} {!$User.LastName}',
         '            </p>',
-        '            <p style="margin:4px 0 0 0;padding:0;color:#FCFCFC;font-family:Arial,Helvetica,sans-serif;font-weight:normal;font-size:14px;line-height:1.3;opacity:0.85;mso-line-height-rule:exactly;">',
+        '            <p style="margin:4px 0 0 0;padding:0;color:#FCFCFC;font-family:Arial,Helvetica,sans-serif;font-weight:normal;font-size:14px;line-height:1.3;mso-line-height-rule:exactly;">',
         '              08 6208 6699',
         '            </p>',
         '          </td>',
@@ -516,19 +482,6 @@
         '  <tr>',
         '    <td bgcolor="#17179A" style="background-color:#17179A;padding:0;font-size:0;line-height:0;">',
         '      <img src="YOUR_GIF_URL_HERE" width="600" height="100" alt="Dave and Busters Campaign" style="display:block;border:0;outline:none;width:100%;max-width:600px;" />',
-        '    </td>',
-        '  </tr>',
-        '  <!-- Bottom Accent Bar -->',
-        '  <tr>',
-        '    <td style="padding:0;font-size:0;line-height:0;">',
-        '      <table width="100%" border="0" cellpadding="0" cellspacing="0" role="presentation" style="border-collapse:collapse;">',
-        '        <tr>',
-        '          <td width="25%" height="4" style="background-color:#00CBFF;font-size:0;line-height:0;">&nbsp;</td>',
-        '          <td width="25%" height="4" style="background-color:#FF00B2;font-size:0;line-height:0;">&nbsp;</td>',
-        '          <td width="25%" height="4" style="background-color:#FE7000;font-size:0;line-height:0;">&nbsp;</td>',
-        '          <td width="25%" height="4" style="background-color:#FFBA00;font-size:0;line-height:0;">&nbsp;</td>',
-        '        </tr>',
-        '      </table>',
         '    </td>',
         '  </tr>',
         '</table>'
