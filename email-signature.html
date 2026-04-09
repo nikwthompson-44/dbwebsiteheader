@@ -271,13 +271,10 @@
     var DEFAULT_ORANGE = 'AT HOME IN CLARKSON';
 
     var phrases = [
-      { white: 'BRING THE WHOLE FAMILY', orange: 'TO THE TABLE' },
-      { white: 'THE GRAND FINAL', orange: '' },
-      { white: 'THE WESTERN DERBY', orange: '' },
-      { white: 'WORLD-CLASS BRAGGING RIGHTS', orange: '' },
+      { white: 'ULTIMATE BRAGGING RIGHTS', orange: '' },
+      { white: 'NO MORE NEGOTIATING ON', orange: 'WHERE TO GO' },
       { white: 'THE BIG GAME', orange: '' },
-      { white: 'WORLD-FAMOUS CLASSICS,', orange: 'PERFECTED HERE' },
-      { white: 'NO MORE NEGOTIATING ON', orange: 'WHERE TO GO' }
+      { white: 'WORLD-FAMOUS CLASSICS,', orange: 'PERFECTED HERE' }
     ];
 
     var whiteEl = document.querySelector('#sig-campaign .phrase-white');
@@ -422,15 +419,12 @@
       status.textContent = 'Recording... (capturing one full cycle)';
       isRecording = true;
 
-      // Calculate total duration of one cycle
-      var phraseDuration = 0.5 + 0.08 + 2 + 0.3 + 0.15; // ~3s per phrase
-      var totalDuration = phrases.length * phraseDuration;
-      var totalMs = Math.ceil(totalDuration * 1000);
-
-      // Create GIF encoder — smaller canvas + higher compression for email-friendly size
+      // Smart GIF capture: only capture frames during transitions,
+      // use single frames with long delays for static holds.
+      // This massively reduces file size.
       var gifWidth = 600;
       var gifHeight = 100;
-      var gifScale = 0.5; // render at half res, keeps file small
+      var gifScale = 1; // full resolution
 
       gifEncoder = new GIF({
         workers: 2,
@@ -440,35 +434,69 @@
         workerScript: gifWorkerBlobUrl || 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
       });
 
-      // Restart animation from beginning
-      animationTimeline.restart();
-
-      // Capture at ~10fps — plenty smooth for text transitions, much fewer frames
-      var frameInterval = 100; // ~10fps
-      var elapsed = 0;
-
-      // Use an offscreen canvas at half resolution for smaller GIF
+      // Offscreen canvas at half resolution
       var scaledCanvas = document.createElement('canvas');
       scaledCanvas.width = Math.round(gifWidth * gifScale);
       scaledCanvas.height = Math.round(gifHeight * gifScale);
       var scaledCtx = scaledCanvas.getContext('2d');
 
-      captureInterval = setInterval(function() {
+      function captureFrame(delay) {
         drawCampaignToCanvas();
         var canvas = document.getElementById('gif-canvas');
-        // Scale down to half res
         scaledCtx.clearRect(0, 0, scaledCanvas.width, scaledCanvas.height);
         scaledCtx.drawImage(canvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
-        gifEncoder.addFrame(scaledCanvas, { copy: true, delay: frameInterval });
-        elapsed += frameInterval;
+        gifEncoder.addFrame(scaledCanvas, { copy: true, delay: delay });
+      }
 
-        var pct = Math.min(100, Math.round((elapsed / totalMs) * 100));
-        status.textContent = 'Recording... ' + pct + '%';
+      // Restart animation and pause it — we'll step through manually
+      animationTimeline.pause().progress(0);
 
-        if (elapsed >= totalMs) {
-          finishRecording();
+      var transitionDuration = 0.6; // max enter duration
+      var holdDuration = 2;
+      var exitDuration = 0.3;
+      var gapDuration = 0.15;
+      var phraseDuration = transitionDuration + holdDuration + exitDuration + gapDuration;
+      var totalDuration = phrases.length * phraseDuration;
+      var fps = 10;
+      var frameStep = 1 / fps; // time step per frame in seconds
+
+      var t = 0;
+      var totalFrames = 0;
+      status.textContent = 'Capturing frames...';
+
+      // Step through the timeline and capture smartly
+      function captureAllFrames() {
+        while (t < totalDuration) {
+          animationTimeline.progress(t / totalDuration);
+
+          // Figure out where we are within the current phrase
+          var phraseTime = t % phraseDuration;
+          var inTransition = phraseTime < transitionDuration;
+          var inHold = phraseTime >= transitionDuration && phraseTime < (transitionDuration + holdDuration);
+          var inExit = phraseTime >= (transitionDuration + holdDuration);
+
+          if (inHold) {
+            // Static hold — capture one frame with the full hold delay
+            var remainingHold = (transitionDuration + holdDuration) - phraseTime;
+            captureFrame(Math.round(remainingHold * 1000));
+            t += remainingHold;
+            totalFrames++;
+          } else {
+            // Transition — capture at normal fps
+            captureFrame(Math.round(frameStep * 1000));
+            t += frameStep;
+            totalFrames++;
+          }
         }
-      }, frameInterval);
+
+        status.textContent = 'Encoding GIF... (' + totalFrames + ' frames)';
+        gifEncoder.render();
+      }
+
+      // Small delay to let timeline initialize
+      setTimeout(function() {
+        captureAllFrames();
+      }, 100);
     };
 
     function finishRecording() {
