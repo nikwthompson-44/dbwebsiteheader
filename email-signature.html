@@ -330,7 +330,7 @@
         }
 
         // Hold
-        tl.to({}, { duration: 3 });
+        tl.to({}, { duration: 2 });
 
         // Animate out — white always
         tl.to(whiteEl, { opacity: 0, y: exitTo, duration: 0.3, ease: 'power3.in' });
@@ -423,30 +423,43 @@
       isRecording = true;
 
       // Calculate total duration of one cycle
-      var phraseDuration = 0.4 + 0.1 + 3 + 0.3 + 0.2; // ~4s per phrase
+      var phraseDuration = 0.5 + 0.08 + 2 + 0.3 + 0.15; // ~3s per phrase
       var totalDuration = phrases.length * phraseDuration;
       var totalMs = Math.ceil(totalDuration * 1000);
 
-      // Create GIF encoder (use blob worker URL to avoid CORS issues on local files)
+      // Create GIF encoder — smaller canvas + higher compression for email-friendly size
+      var gifWidth = 600;
+      var gifHeight = 100;
+      var gifScale = 0.5; // render at half res, keeps file small
+
       gifEncoder = new GIF({
         workers: 2,
-        quality: 10,
-        width: 600,
-        height: 100,
+        quality: 20,
+        width: Math.round(gifWidth * gifScale),
+        height: Math.round(gifHeight * gifScale),
         workerScript: gifWorkerBlobUrl || 'https://cdnjs.cloudflare.com/ajax/libs/gif.js/0.2.0/gif.worker.js'
       });
 
       // Restart animation from beginning
       animationTimeline.restart();
 
-      // Capture frames at ~15fps
-      var frameInterval = 66; // ~15fps
+      // Capture at ~10fps — plenty smooth for text transitions, much fewer frames
+      var frameInterval = 100; // ~10fps
       var elapsed = 0;
+
+      // Use an offscreen canvas at half resolution for smaller GIF
+      var scaledCanvas = document.createElement('canvas');
+      scaledCanvas.width = Math.round(gifWidth * gifScale);
+      scaledCanvas.height = Math.round(gifHeight * gifScale);
+      var scaledCtx = scaledCanvas.getContext('2d');
 
       captureInterval = setInterval(function() {
         drawCampaignToCanvas();
         var canvas = document.getElementById('gif-canvas');
-        gifEncoder.addFrame(canvas, { copy: true, delay: frameInterval });
+        // Scale down to half res
+        scaledCtx.clearRect(0, 0, scaledCanvas.width, scaledCanvas.height);
+        scaledCtx.drawImage(canvas, 0, 0, scaledCanvas.width, scaledCanvas.height);
+        gifEncoder.addFrame(scaledCanvas, { copy: true, delay: frameInterval });
         elapsed += frameInterval;
 
         var pct = Math.min(100, Math.round((elapsed / totalMs) * 100));
